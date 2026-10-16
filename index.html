@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Find Your Calling (Classroom Demo)</title>
+<style>
+  :root {
+    --bg: #0b0b0c; --card: #18181b; --card2: #232327; --text: #f5f5f5;
+    --muted: #a1a1a8; --dim: #66666d; --accent: #f5b700;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; min-height: 100vh;
+    display: flex; flex-direction: column; }
+  .kicker { color: var(--accent); font-weight: 800; letter-spacing: .08em; font-size: 12px;
+    text-transform: uppercase; }
+  h1 { font-size: 34px; line-height: 1.15; margin: 8px 0 12px; font-weight: 800; }
+  p { color: var(--muted); line-height: 1.5; font-size: 16px; }
+  button { font: inherit; cursor: pointer; border: 0; }
+  .primary { background: var(--accent); color: #0b0b0c; font-weight: 800; padding: 16px 20px;
+    border-radius: 12px; font-size: 18px; width: 100%; margin-top: 16px; }
+  .progress { display: flex; justify-content: space-between; color: var(--dim); font-size: 13px;
+    margin-bottom: 10px; }
+  .timer { height: 6px; background: var(--card2); border-radius: 3px; overflow: hidden; margin-bottom: 28px; }
+  .timer > div { height: 100%; width: 100%; background: var(--accent); transform-origin: left; }
+  .prompt { font-size: 15px; color: var(--muted); margin-bottom: 14px; }
+  .choice { display: block; width: 100%; text-align: left; background: var(--card); color: var(--text);
+    padding: 22px 20px; border-radius: 14px; font-size: 19px; line-height: 1.35; margin-bottom: 12px;
+    border: 2px solid transparent; transition: border-color .12s, background .12s; }
+  .choice:hover, .choice:focus-visible { border-color: var(--accent); background: var(--card2); outline: none; }
+  .or { text-align: center; color: var(--dim); font-size: 13px; margin: 2px 0 14px; letter-spacing: .1em; }
+  .result-top { display: flex; gap: 12px; margin: 18px 0 8px; }
+  .badge { flex: 1; background: var(--card); border-radius: 14px; padding: 16px; text-align: center; }
+  .badge .letter { font-size: 56px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .badge .name { font-weight: 800; margin-top: 6px; font-size: 18px; }
+  .badge .tag { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 2px; }
+  .bars { margin: 18px 0; }
+  .bar { display: grid; grid-template-columns: 110px 1fr 36px; align-items: center; gap: 10px;
+    margin: 10px 0; font-size: 15px; }
+  .bar .track { height: 12px; background: var(--card2); border-radius: 6px; overflow: hidden; }
+  .bar .fill { height: 100%; background: #4a4a50; border-radius: 6px; }
+  .bar.top .fill { background: var(--accent); }
+  .bar .n { text-align: right; color: var(--muted); }
+  .desc { background: var(--card); border-radius: 14px; padding: 16px 18px; margin-top: 10px; }
+  .desc strong { color: var(--text); }
+  .fine { color: var(--dim); font-size: 12px; margin-top: auto; padding-top: 28px; line-height: 1.5; }
+  .ghost { background: transparent; color: var(--muted); text-decoration: underline; margin-top: 14px; font-size: 14px; }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <section id="intro">
+    <div class="kicker">Classroom demo</div>
+    <h1>Find your fivefold "calling"</h1>
+    <p>You will see 20 pairs of statements. Tap the one that sounds more like you. You get 10 seconds per pair, so go with your gut.</p>
+    <p>At the end you get your top two letters: <strong>A</strong>postle, <strong>P</strong>rophet, <strong>E</strong>vangelist, <strong>S</strong>hepherd or <strong>T</strong>eacher.</p>
+    <button class="primary" id="start">Start the test</button>
+    <p class="fine">Built for a class presentation. It copies the format of the commercial APEST test (forced-choice pairs on a timer) but is not the official 5Q assessment and has no scientific validity. Neither, as far as anyone has published, does the original. Nothing you tap leaves this page.</p>
+  </section>
+
+  <section id="quiz" hidden>
+    <div class="progress"><span id="count">1 / 20</span><span id="secs">10s</span></div>
+    <div class="timer"><div id="bar"></div></div>
+    <div class="prompt">Which sounds more like you?</div>
+    <button class="choice" id="c0"></button>
+    <div class="or">OR</div>
+    <button class="choice" id="c1"></button>
+  </section>
+
+  <section id="result" hidden>
+    <div class="kicker">Your result</div>
+    <h1 id="headline"></h1>
+    <div class="result-top" id="top"></div>
+    <div class="desc" id="desc"></div>
+    <div class="bars" id="bars"></div>
+    <p>Write down your top two letters for the next slide.</p>
+    <button class="ghost" id="again">Take it again</button>
+    <p class="fine">Descriptions paraphrase the public type summaries on the 5Q website. Classroom demo only.</p>
+  </section>
+</main>
+<script>
+(function () {
+  var TYPES = {
+    A: { name: "Apostle", tag: "The Sent One", desc: "You see the big picture, start new things and get people moving." },
+    P: { name: "Prophet", tag: "The Covenant Guardian", desc: "You care about truth and integrity, and you say so when something is off." },
+    E: { name: "Evangelist", tag: "The Good News Bearer", desc: "You build bridges to new people and love sharing what excites you." },
+    S: { name: "Shepherd", tag: "The Protector", desc: "You notice who is hurting and make groups feel safe and cared for." },
+    T: { name: "Teacher", tag: "The Interpreter", desc: "You make complicated things clear and love helping others understand." }
+  };
+  var S = {
+    A: ["I like starting new things from scratch.", "I think about where a group should be in five years.",
+        "I get restless when things stay the same too long.", "I would rather launch a project than maintain one.",
+        "I enjoy recruiting people to a new idea.", "I like going places no one in my group has gone.",
+        "I see how the pieces of a big plan fit together.", "I am happy to hand off something once it is running."],
+    P: ["I notice when something in a group is wrong and say so.", "I care a lot about honesty, even when it is awkward.",
+        "I would rather be truthful than popular.", "I speak up for people who get overlooked.",
+        "I can tell when words and actions do not match.", "I am bothered when people go along just to keep the peace.",
+        "I like asking the hard question in a meeting.", "I want what we do to match what we say we believe."],
+    E: ["I love meeting new people.", "I enjoy telling others about things I am excited about.",
+        "I can start a conversation with almost anyone.", "I like bringing outsiders into a group.",
+        "I enjoy persuading people.", "I feel energized after a room full of strangers.",
+        "I often invite friends to things I am part of.", "I like explaining why something matters to people who have never heard of it."],
+    S: ["I notice when someone is quietly struggling.", "I like making people feel included and cared for.",
+        "I would rather keep a group together than push it forward.", "People tend to come to me with their problems.",
+        "I remember birthdays and check in on friends.", "I am patient with people who need extra time.",
+        "I care more about how people are doing than what they get done.", "I like small groups where everyone knows each other."],
+    T: ["I enjoy explaining complicated ideas clearly.", "I like researching a topic until I really understand it.",
+        "I want to know why something is true, not just that it is.", "I enjoy helping others learn something new.",
+        "I like organizing information so it makes sense.", "I notice when an explanation does not add up.",
+        "I would rather read the book than watch the summary.", "I like answering questions after a talk."]
+  };
+  var KEYS = ["A", "P", "E", "S", "T"];
+  var LIMIT = 10;
+  var pairs, idx, scores, timer, started;
+
+  function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+
+  function build() {
+    var used = { A: 0, P: 0, E: 0, S: 0, T: 0 };
+    var list = [];
+    for (var round = 0; round < 2; round++) {
+      for (var i = 0; i < 5; i++) for (var j = i + 1; j < 5; j++) {
+        var a = KEYS[i], b = KEYS[j];
+        var pair = [{ t: a, s: S[a][used[a]++] }, { t: b, s: S[b][used[b]++] }];
+        list.push(shuffle(pair));
+      }
+    }
+    return shuffle(list);
+  }
+
+  function $(id) { return document.getElementById(id); }
+  function show(id) { ["intro", "quiz", "result"].forEach(function (s) { $(s).hidden = s !== id; }); }
+
+  function start() {
+    pairs = build(); idx = 0; scores = { A: 0, P: 0, E: 0, S: 0, T: 0 };
+    show("quiz"); next();
+  }
+
+  function next() {
+    if (idx >= pairs.length) return finish();
+    var p = pairs[idx];
+    $("count").textContent = (idx + 1) + " / " + pairs.length;
+    $("c0").textContent = p[0].s; $("c1").textContent = p[1].s;
+    started = Date.now();
+    clearInterval(timer);
+    tick();
+    timer = setInterval(tick, 100);
+  }
+
+  function tick() {
+    var left = Math.max(0, LIMIT - (Date.now() - started) / 1000);
+    $("secs").textContent = Math.ceil(left) + "s";
+    $("bar").style.transform = "scaleX(" + (left / LIMIT) + ")";
+    if (left <= 0) { clearInterval(timer); idx++; next(); }
+  }
+
+  function pick(k) {
+    clearInterval(timer);
+    scores[pairs[idx][k].t]++;
+    idx++; next();
+  }
+
+  function finish() {
+    clearInterval(timer);
+    var order = KEYS.slice().sort(function (x, y) { return scores[y] - scores[x] || KEYS.indexOf(x) - KEYS.indexOf(y); });
+    var a = order[0], b = order[1];
+    $("headline").textContent = "You are " + a + b + ": " + TYPES[a].name + " / " + TYPES[b].name;
+    $("top").innerHTML = [a, b].map(function (k) {
+      return '<div class="badge"><div class="letter">' + k + '</div><div class="name">' + TYPES[k].name +
+        '</div><div class="tag">' + TYPES[k].tag + '</div></div>';
+    }).join("");
+    $("desc").innerHTML = "<strong>" + TYPES[a].name + ":</strong> " + TYPES[a].desc + "<br><br><strong>" +
+      TYPES[b].name + ":</strong> " + TYPES[b].desc;
+    var max = 8;
+    $("bars").innerHTML = order.map(function (k, i) {
+      return '<div class="bar' + (i < 2 ? ' top' : '') + '"><span>' + TYPES[k].name +
+        '</span><div class="track"><div class="fill" style="width:' + (100 * scores[k] / max) +
+        '%"></div></div><span class="n">' + scores[k] + '</span></div>';
+    }).join("");
+    show("result");
+  }
+
+  $("start").addEventListener("click", start);
+  $("again").addEventListener("click", start);
+  $("c0").addEventListener("click", function () { pick(0); });
+  $("c1").addEventListener("click", function () { pick(1); });
+})();
+</script>
+</body>
+</html>
