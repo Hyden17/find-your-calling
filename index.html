@@ -6,20 +6,20 @@
 <title>Find Your Calling (Classroom Demo)</title>
 <style>
   :root {
-    --bg: #0b0b0c; --card: #18181b; --card2: #232327; --text: #f5f5f5;
-    --muted: #a1a1a8; --dim: #66666d; --accent: #f5b700;
+    --bg: #ffffff; --card: #eaf5fd; --card2: #d3ebfb; --text: #0e2a44;
+    --muted: #46607c; --dim: #7a8fa6; --accent: #6cbcf0; --accent-ink: #2380c4;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; background: var(--bg); color: var(--text);
     font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
   main { max-width: 640px; margin: 0 auto; padding: 32px 16px 48px; min-height: 100vh;
     display: flex; flex-direction: column; }
-  .kicker { color: var(--accent); font-weight: 800; letter-spacing: .08em; font-size: 12px;
+  .kicker { color: var(--accent-ink); font-weight: 800; letter-spacing: .08em; font-size: 12px;
     text-transform: uppercase; }
   h1 { font-size: 34px; line-height: 1.15; margin: 8px 0 12px; font-weight: 800; }
   p { color: var(--muted); line-height: 1.5; font-size: 16px; }
   button { font: inherit; cursor: pointer; border: 0; }
-  .primary { background: var(--accent); color: #0b0b0c; font-weight: 800; padding: 16px 20px;
+  .primary { background: var(--accent); color: #0e2a44; font-weight: 800; padding: 16px 20px;
     border-radius: 12px; font-size: 18px; width: 100%; margin-top: 16px; }
   .progress { display: flex; justify-content: space-between; color: var(--dim); font-size: 13px;
     margin-bottom: 10px; }
@@ -28,19 +28,19 @@
   .prompt { font-size: 15px; color: var(--muted); margin-bottom: 14px; }
   .choice { display: block; width: 100%; text-align: left; background: var(--card); color: var(--text);
     padding: 22px 20px; border-radius: 14px; font-size: 19px; line-height: 1.35; margin-bottom: 12px;
-    border: 2px solid transparent; transition: border-color .12s, background .12s; }
+    border: 2px solid var(--card2); transition: border-color .12s, background .12s; }
   .choice:hover, .choice:focus-visible { border-color: var(--accent); background: var(--card2); outline: none; }
   .or { text-align: center; color: var(--dim); font-size: 13px; margin: 2px 0 14px; letter-spacing: .1em; }
   .result-top { display: flex; gap: 12px; margin: 18px 0 8px; }
   .badge { flex: 1; background: var(--card); border-radius: 14px; padding: 16px; text-align: center; }
-  .badge .letter { font-size: 56px; font-weight: 800; color: var(--accent); line-height: 1; }
+  .badge .letter { font-size: 56px; font-weight: 800; color: var(--accent-ink); line-height: 1; }
   .badge .name { font-weight: 800; margin-top: 6px; font-size: 18px; }
   .badge .tag { color: var(--muted); font-style: italic; font-size: 14px; margin-top: 2px; }
   .bars { margin: 18px 0; }
   .bar { display: grid; grid-template-columns: 110px 1fr 36px; align-items: center; gap: 10px;
     margin: 10px 0; font-size: 15px; }
   .bar .track { height: 12px; background: var(--card2); border-radius: 6px; overflow: hidden; }
-  .bar .fill { height: 100%; background: #4a4a50; border-radius: 6px; }
+  .bar .fill { height: 100%; background: #b9dcf3; border-radius: 6px; }
   .bar.top .fill { background: var(--accent); }
   .bar .n { text-align: right; color: var(--muted); }
   .desc { background: var(--card); border-radius: 14px; padding: 16px 18px; margin-top: 10px; }
